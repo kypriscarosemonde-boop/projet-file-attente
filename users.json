@@ -1,0 +1,17 @@
+{
+    "admin": {
+        "password": "admin123",
+        "nom": "Administrateur",
+        "role": "Administrateur"
+    },
+    "user": {
+        "password": "user123",
+        "nom": "Utilisateur",
+        "role": "Utilisateur"
+    },
+    "prisca": {
+        "password": "ky2024",
+        "nom": "KY Prisca",
+        "role": "Développeur"
+    }
+}
