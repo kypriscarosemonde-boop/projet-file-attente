@@ -1,12 +1,11 @@
 """
-Module de connexion pour QueueSim Pro
+Module de connexion pour QueueSim Pro - Version épurée
 """
 
 import tkinter as tk
 from tkinter import messagebox
 import json
 import os
-import sys
 
 # Import du Dashboard avec gestion d'erreur
 try:
@@ -18,177 +17,246 @@ except ImportError:
     DASHBOARD_DISPONIBLE = False
 
 class LoginWindow:
-    """Fenêtre de connexion à l'application QueueSim Pro"""
+    """Fenêtre de connexion - Design épuré arrière-plan clair"""
     
     def __init__(self, root):
         self.root = root
         self.root.title("QueueSim Pro - Connexion")
-        self.root.geometry("600x750")
-        self.root.minsize(500, 600)
+        self.root.geometry("480x600")
+        self.root.minsize(420, 550)
+        self.root.resizable(True, True)
         
+        # Palette de couleurs sobres et élégantes
         self.colors = {
-            'bg_top': '#1e3a8a',
-            'bg_bottom': '#020617',
-            'card_bg': '#1e293b',
-            'card_border': '#60a5fa',
-            'input_bg': '#0f172a',
-            'text_main': '#ffffff',
-            'text_dim': '#94a3b8',
-            'btn_blue': '#0056b3',
-            'btn_hover': '#00418c'
+            'bg': '#f5f0e8',          # Beige clair
+            'card_bg': '#ffffff',      # Blanc
+            'card_border': '#e8e0d5',  # Beige moyen
+            'primary': '#2c3e50',      # Bleu gris foncé
+            'primary_light': '#34495e',# Bleu gris
+            'text_dark': '#2c3e50',    # Bleu gris foncé
+            'text_light': '#7f8c8d',   # Gris
+            'input_bg': '#ffffff',     # Blanc
+            'input_border': '#e9e7e5', # Beige
+            'separator': '#e0d6cc'     # Beige
         }
-
+        
+        self.root.configure(bg=self.colors['bg'])
+        
+        # Centrer la fenêtre
+        self.center_window()
+        
+        # Charger les utilisateurs
         self.users_file = 'users.json'
         self.init_users_file()
-        self.user_ph = "Nom d'utilisateur"
-        self.pass_ph = "Mot de passe"
+        
+        # Variables pour les placeholders
+        self.username_ph = "Username"
+        self.password_ph = "Password"
+        
+        # Créer l'interface
         self.setup_ui()
-        self.root.deiconify()
-
+    
+    def center_window(self):
+        """Centrer la fenêtre sur l'écran"""
+        self.root.update_idletasks()
+        width = self.root.winfo_width()
+        height = self.root.winfo_height()
+        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.root.winfo_screenheight() // 2) - (height // 2)
+        self.root.geometry(f'{width}x{height}+{x}+{y}')
+    
     def init_users_file(self):
-        """Initialise le fichier users.json s'il n'existe pas"""
+        """Initialiser le fichier des utilisateurs"""
         if not os.path.exists(self.users_file):
             default_users = {
-                "admin": {"password": "admin123", "nom": "Administrateur", "role": "Administrateur"},
-                "user": {"password": "user123", "nom": "Utilisateur", "role": "Utilisateur"},
-                "prisca": {"password": "ky2024", "nom": "KY Prisca", "role": "Développeur"}
+                "admin": {
+                    "password": "admin123",
+                    "nom": "Administrateur",
+                    "role": "admin"
+                },
+                "user": {
+                    "password": "user123",
+                    "nom": "Utilisateur",
+                    "role": "user"
+                },
+                "prisca": {
+                    "password": "ky2024",
+                    "nom": "KY Prisca",
+                    "role": "Développeur"
+                }
             }
-            with open(self.users_file, 'w', encoding='utf-8') as f:
-                json.dump(default_users, f, indent=4, ensure_ascii=False)
+            with open(self.users_file, 'w') as f:
+                json.dump(default_users, f, indent=4)
     
     def setup_ui(self):
-        """Configure l'interface utilisateur"""
-        self.main_canvas = tk.Canvas(self.root, highlightthickness=0)
-        self.main_canvas.pack(fill="both", expand=True)
-        self.main_canvas.bind("<Configure>", self.on_resize)
-
-        self.card = tk.Frame(self.main_canvas, bg=self.colors['card_bg'],
-                             highlightbackground=self.colors['card_border'],
-                             highlightthickness=2, padx=35, pady=35)
-        self.card.place(relx=0.5, rely=0.5, anchor="center", width=380, height=580)
-
-        # Logo
-        logo_container = tk.Canvas(self.card, width=100, height=100, 
-                                   bg=self.colors['card_bg'], highlightthickness=0)
-        logo_container.pack(pady=(20, 10))
-        logo_container.create_oval(5, 5, 95, 95, outline=self.colors['card_border'], width=2)
-        logo_container.create_text(50, 50, text="QS", fill="white", font=("Segoe UI", 24, "bold"))
-
-        # Titre
-        tk.Label(self.card, text="QueueSim Pro", bg=self.colors['card_bg'], 
-                 fg="white", font=("Segoe UI", 20, "bold")).pack(pady=(0, 30))
-        tk.Label(self.card, text="Connectez-vous pour accéder à la simulation",
-                 bg=self.colors['card_bg'], fg=self.colors['text_dim'], 
-                 font=("Segoe UI", 10)).pack(pady=(0, 20))
-
-        # Champs de saisie
-        self.username_entry = self.create_input("👤", self.user_ph)
-        self.password_entry = self.create_input("🔒", self.pass_ph, is_password=True)
-
-        # Options
-        options_frame = tk.Frame(self.card, bg=self.colors['card_bg'])
-        options_frame.pack(fill="x", pady=10)
+        """Configurer l'interface de connexion"""
         
-        self.remember_var = tk.BooleanVar()
-        tk.Checkbutton(options_frame, text="Se souvenir de moi", variable=self.remember_var,
-                       bg=self.colors['card_bg'], fg=self.colors['text_dim'],
-                       selectcolor=self.colors['input_bg'], font=("Segoe UI", 9), bd=0).pack(side="left")
+        # Carte principale
+        self.card = tk.Frame(
+            self.root,
+            bg=self.colors['card_bg'],
+            highlightbackground=self.colors['card_border'],
+            highlightthickness=1
+        )
+        self.card.place(relx=0.5, rely=0.5, anchor='center', width=380, height=550)
         
-        tk.Label(options_frame, text="Mot de passe oublié ?", bg=self.colors['card_bg'],
-                 fg=self.colors['text_dim'], font=("Segoe UI", 9, "italic")).pack(side="right")
-
-        # Bouton
-        login_btn = tk.Button(self.card, text="SE CONNECTER", command=self.handle_login,
-                              bg=self.colors['btn_blue'], fg="white", font=("Segoe UI", 12, "bold"),
-                              bd=0, cursor="hand2", activebackground=self.colors['btn_hover'])
-        login_btn.pack(fill="x", pady=(30, 10), ipady=12)
+        # ===== TITRE =====
+        title = tk.Label(
+            self.card,
+            text="Log in",
+            font=('Segoe UI', 28, 'bold'),
+            bg=self.colors['card_bg'],
+            fg=self.colors['text_dark']
+        )
+        title.pack(pady=(40, 10))
         
-        login_btn.bind("<Enter>", lambda e: login_btn.config(bg=self.colors['btn_hover']))
-        login_btn.bind("<Leave>", lambda e: login_btn.config(bg=self.colors['btn_blue']))
-
-        # Infos
-        info_frame = tk.Frame(self.card, bg=self.colors['card_bg'])
-        info_frame.pack(fill="x", pady=(20, 0))
-        tk.Label(info_frame, text="Comptes de démonstration :", bg=self.colors['card_bg'],
-                 fg=self.colors['text_dim'], font=("Segoe UI", 9, "bold")).pack()
-        tk.Label(info_frame, text="admin / admin123 • user / user123 • prisca / ky2024",
-                 bg=self.colors['card_bg'], fg=self.colors['text_dim'], 
-                 font=("Segoe UI", 8)).pack()
-
-    def create_input(self, icon, placeholder, is_password=False):
-        """Crée un champ de saisie stylisé"""
-        container = tk.Frame(self.card, bg=self.colors['input_bg'], padx=15, pady=12)
-        container.pack(fill="x", pady=10)
+        # ===== SOUS-TITRE =====
+        subtitle = tk.Label(
+            self.card,
+            text="Login to start all features",
+            font=('Segoe UI', 11),
+            bg=self.colors['card_bg'],
+            fg=self.colors['text_light']
+        )
+        subtitle.pack(pady=(0, 40))
         
-        tk.Label(container, text=icon, bg=self.colors['input_bg'], 
-                 fg="white", font=("Segoe UI", 12)).pack(side="left", padx=(0, 10))
+        # ===== FORMULAIRE =====
+        form_frame = tk.Frame(self.card, bg=self.colors['card_bg'])
+        form_frame.pack(fill='x', padx=35)
         
-        entry = tk.Entry(container, bg=self.colors['input_bg'], fg="white",
-                         insertbackground="white", borderwidth=0, font=("Segoe UI", 11))
-        entry.insert(0, placeholder)
-        entry.pack(side="left", fill="x", expand=True)
+        # Champ Username
+        username_label = tk.Label(
+            form_frame,
+            text="Username",
+            font=('Segoe UI', 11, 'bold'),
+            bg=self.colors['card_bg'],
+            fg=self.colors['text_dark'],
+            anchor='w'
+        )
+        username_label.pack(fill='x', pady=(0, 5))
         
-        entry.bind("<FocusIn>", lambda e: self.clear_placeholder(entry, placeholder, is_password))
-        entry.bind("<FocusOut>", lambda e: self.restore_placeholder(entry, placeholder, is_password))
-        entry.bind("<Return>", lambda e: self.handle_login())
+        self.username_entry = tk.Entry(
+            form_frame,
+            font=('Segoe UI', 11),
+            bg=self.colors['input_bg'],
+            fg=self.colors['text_dark'],
+            bd=1,
+            relief='solid',
+            highlightbackground=self.colors['input_border'],
+            highlightcolor=self.colors['primary'],
+            highlightthickness=1
+        )
+        self.username_entry.pack(fill='x', pady=(0, 20), ipady=10)
+        self.username_entry.insert(0, "admin")
         
-        return entry
-
-    def clear_placeholder(self, entry, placeholder, is_password):
-        if entry.get() == placeholder:
-            entry.delete(0, "end")
-            if is_password:
-                entry.config(show="•")
-
-    def restore_placeholder(self, entry, placeholder, is_password):
-        if not entry.get():
-            if is_password:
-                entry.config(show="")
-            entry.insert(0, placeholder)
-
-    def on_resize(self, event):
-        """Redessine le dégradé"""
-        self.main_canvas.delete("gradient")
-        width, height = event.width, event.height
-        for i in range(0, height, 2):
-            ratio = i / height
-            r = int(30 - ratio * 28)
-            g = int(58 - ratio * 52)
-            b = int(138 - ratio * 115)
-            color = f'#{max(0,r):02x}{max(0,g):02x}{max(0,b):02x}'
-            self.main_canvas.create_line(0, i, width, i, fill=color, tags="gradient")
-        self.main_canvas.tag_lower("gradient")
-
-    def handle_login(self):
-        """Gère la tentative de connexion"""
+        # Champ Password
+        password_label = tk.Label(
+            form_frame,
+            text="Password",
+            font=('Segoe UI', 11, 'bold'),
+            bg=self.colors['card_bg'],
+            fg=self.colors['text_dark'],
+            anchor='w'
+        )
+        password_label.pack(fill='x', pady=(0, 5))
+        
+        self.password_entry = tk.Entry(
+            form_frame,
+            font=('Segoe UI', 11),
+            bg=self.colors['input_bg'],
+            fg=self.colors['text_dark'],
+            bd=1,
+            relief='solid',
+            highlightbackground=self.colors['input_border'],
+            highlightcolor=self.colors['primary'],
+            highlightthickness=1,
+            show="•"
+        )
+        self.password_entry.pack(fill='x', pady=(0, 30), ipady=10)
+        self.password_entry.insert(0, "admin123")
+        
+        # ===== BOUTON LOGIN NOW =====
+        login_btn = tk.Button(
+            form_frame,
+            text="Login now",
+            font=('Segoe UI', 12, 'bold'),
+            bg=self.colors['primary'],
+            fg='white',
+            bd=0,
+            cursor='hand2',
+            padx=20,
+            pady=12,
+            command=self.login
+        )
+        login_btn.pack(fill='x', pady=(0, 20))
+        
+        # Effet hover
+        login_btn.bind('<Enter>', lambda e: login_btn.configure(bg=self.colors['primary_light']))
+        login_btn.bind('<Leave>', lambda e: login_btn.configure(bg=self.colors['primary']))
+        
+        # ===== TEXTE DE DÉMONSTRATION =====
+        demo_frame = tk.Frame(self.card, bg=self.colors['card_bg'])
+        demo_frame.pack(side='bottom', fill='x', pady=30)
+        
+        tk.Label(
+            demo_frame,
+            text="📝 Comptes de démonstration :",
+            font=('Segoe UI', 9),
+            bg=self.colors['card_bg'],
+            fg=self.colors['text_light']
+        ).pack()
+        
+        tk.Label(
+            demo_frame,
+            text="admin / admin123    •    user / user123    •    prisca / ky2024",
+            font=('Segoe UI', 8),
+            bg=self.colors['card_bg'],
+            fg=self.colors['text_light']
+        ).pack(pady=(5, 0))
+        
+        # Lier la touche Entrée
+        self.password_entry.bind('<Return>', lambda e: self.login())
+    
+    def login(self):
+        """Fonction de connexion"""
         username = self.username_entry.get().strip()
         password = self.password_entry.get()
-
-        if username == self.user_ph or password == self.pass_ph or not username or not password:
-            messagebox.showwarning("Attention", "Veuillez remplir tous les champs")
+        
+        if not username or not password:
+            messagebox.showwarning(
+                "Erreur",
+                "Veuillez remplir tous les champs"
+            )
             return
-
+        
         try:
-            with open(self.users_file, 'r', encoding='utf-8') as f:
+            with open(self.users_file, 'r') as f:
                 users = json.load(f)
             
             if username in users and users[username]['password'] == password:
-                user_info = users[username]
-                messagebox.showinfo("Connexion réussie", f"Bienvenue {user_info['nom']} !")
-                
+                # Connexion réussie
                 self.root.destroy()
                 
-                if DASHBOARD_DISPONIBLE and Dashboard:
-                    new_root = tk.Tk()
-                    Dashboard(new_root, user_info)
-                    new_root.mainloop()
-                else:
-                    messagebox.showerror("Erreur", "Dashboard non disponible")
+                # Ouvrir le tableau de bord
+                dashboard_root = tk.Tk()
+                dashboard_root.title(f"QueueSim Pro - {users[username]['nom']}")
+                dashboard_root.geometry("1200x700")
+                
+                app = Dashboard(dashboard_root, users[username])
+                dashboard_root.mainloop()
             else:
-                messagebox.showerror("Erreur", "Identifiants incorrects")
+                messagebox.showerror(
+                    "Erreur",
+                    "Nom d'utilisateur ou mot de passe incorrect"
+                )
+                
         except Exception as e:
-            messagebox.showerror("Erreur", f"Problème technique : {e}")
+            messagebox.showerror(
+                "Erreur",
+                f"Erreur: {str(e)}"
+            )
 
+# Point d'entrée pour tester
 if __name__ == "__main__":
     root = tk.Tk()
     app = LoginWindow(root)
